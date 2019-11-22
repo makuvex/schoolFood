@@ -3,11 +3,9 @@ package com.jungbae.schoolfood.network
 import io.reactivex.Single
 import retrofit2.http.GET
 import retrofit2.http.Query
-import retrofit2.http.QueryMap
 
 interface SchoolFoodApiInterface {
 
-    // https://open.neis.go.kr/hub/schoolInfo?Type=json&pIndex=1&pSize=100&SCHUL_NM=신중
     @GET(ApiSetting.Service.GET_SCHOOL_INFO)
     fun getNotices(@Query("Type") type: String,
                    @Query("pIndex") index: Int,
