@@ -2,7 +2,7 @@ package com.jungbae.schoolfood.network
 
 import com.google.gson.annotations.SerializedName
 
-class SchoolMealData {
+class SchoolMealData: BaseRespData() {
 
     @SerializedName("mealServiceDietInfo")
     var mealInfo: ArrayList<MealInfo>? = null

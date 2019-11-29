@@ -2,13 +2,64 @@ package com.jungbae.schoolfood.network
 
 import com.google.gson.annotations.SerializedName
 
+enum class SchoolDataIndex(val index: Int) {
+    HEAD(0),
+    ROW(1),
+    RESULT_CODE(1)
+}
+
+data class SchoolData(val schoolInfo: ArrayList<SchoolInfo>): BaseRespData()
+data class SchoolInfo(val head: ArrayList<Head>,
+                      var row: ArrayList<School>)
+
+data class Head(    @SerializedName("list_total_count") val listCount: Int,
+                    @SerializedName("RESULT") val result: Result)
+
+data class Result(  @SerializedName("CODE") val code: String,
+                    @SerializedName("MESSAGE") val msg: String)
+
+data class School(  @SerializedName("ATPT_OFCDC_SC_CODE") val eduOfficecode: String,
+                    @SerializedName("ATPT_OFCDC_SC_NM") val eduOfficName: String,
+                    @SerializedName("SD_SCHUL_CODE") val schoolCode: String,
+                    @SerializedName("SCHUL_NM") val schoolName: String,
+                    @SerializedName("LCTN_SC_NM") val administrativeDistrict: String,
+                    @SerializedName("ORG_RDNZC") val zipCode: String,
+                    @SerializedName("ENG_SCHUL_NM") val schoolEngName: String,
+                    @SerializedName("ORG_RDNMA") val roadNameAddress: String,
+                    @SerializedName("ORG_RDNDA") val roadNameDetailAddress: String,
+                    @SerializedName("ORG_TELNO") val telNumber: String,
+                    @SerializedName("HMPG_ADRES") val homePage: String,
+                    @SerializedName("FOND_YMD") val establishmentDate: String)
+
+
+/*
 class SchoolData {
 
     @SerializedName("schoolInfo")
     var schoolInfo: ArrayList<SchoolInfo>? = null
 
     inner class SchoolInfo {
-        @SerializedName("schoolInfo")
+
+        @SerializedName("head")
+        var head: ArrayList<Head>? = null
+
+        inner class Head {
+            @SerializedName("list_total_count")
+            var listCount: Int? = null
+
+            @SerializedName("RESULT")
+            var result: Result? = null
+
+            inner class Result {
+                @SerializedName("CODE")
+                var code: String? = null
+
+                @SerializedName("MESSAGE")
+                var message: String? = null
+            }
+        }
+
+        @SerializedName("row")
         var row: ArrayList<School>? = null
 
         inner class School {
@@ -50,3 +101,4 @@ class SchoolData {
         }
     }
 }
+*/
