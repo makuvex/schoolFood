@@ -38,6 +38,29 @@ class SchoolFoodService {
         return Observable.empty()
     }
 
+    fun getSchoolMealData(type: String,
+                          index: Int,
+                          size: Int,
+                          officeCode: String,
+                          schoolCode: String,
+                          authKey: String,
+                          fromDate: String,
+                          toDate: String): Observable<SchoolMealData> {
+
+        t?.let {
+            return it.getSchoolMealData(
+                type,
+                index,
+                size,
+                officeCode,
+                schoolCode,
+                authKey,
+                fromDate,
+                toDate)
+                .toObservable().compose(ioMain())
+        }
+        return Observable.empty()
+    }
 
     fun <T> ioMain(): ObservableTransformer<T, T> {
         return ObservableTransformer {

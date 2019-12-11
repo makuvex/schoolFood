@@ -2,12 +2,21 @@ package com.jungbae.schoolfood.network
 
 import com.google.gson.annotations.SerializedName
 
+/*
 class SchoolMealData: BaseRespData() {
 
     @SerializedName("mealServiceDietInfo")
     var mealInfo: ArrayList<MealInfo>? = null
 
     inner class MealInfo {
+        @SerializedName("head")
+        var head: ArrayList<Head>? = null
+
+        inner class Head {
+            @SerializedName("head")
+            var head: ArrayList<Head>? = null
+        }
+
         @SerializedName("row")
         var row: ArrayList<Meal>? = null
 
@@ -57,3 +66,4 @@ class SchoolMealData: BaseRespData() {
         }
     }
 }
+*/

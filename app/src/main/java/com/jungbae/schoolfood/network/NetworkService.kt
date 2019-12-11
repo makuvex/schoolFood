@@ -59,5 +59,16 @@ class NetworkService {
         return service.getSchoolData(type, index, size, schoolName)
     }
 
+    fun getSchoolMealData(type: String,
+                          index: Int,
+                          size: Int,
+                          officeCode: String,
+                          schoolCode: String,
+                          authKey: String,
+                          fromDate: String,
+                          toDate: String): Observable<SchoolMealData> {
+
+        return service.getSchoolMealData(type, index, size, officeCode, schoolCode, authKey, fromDate, toDate)
+    }
 }
 

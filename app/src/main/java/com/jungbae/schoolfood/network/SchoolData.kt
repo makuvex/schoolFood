@@ -31,6 +31,40 @@ data class School(  @SerializedName("ATPT_OFCDC_SC_CODE") val eduOfficecode: Str
                     @SerializedName("HMPG_ADRES") val homePage: String,
                     @SerializedName("FOND_YMD") val establishmentDate: String)
 
+///////////
+
+
+data class SchoolMealData(val mealServiceDietInfo: ArrayList<MealServiceDietInfo>): BaseRespData()
+data class MealServiceDietInfo(val head: ArrayList<Head>,
+                               var row: ArrayList<Meal>)
+
+data class Meal(  @SerializedName("ATPT_OFCDC_SC_CODE") val eduOfficecode: String,
+                  @SerializedName("ATPT_OFCDC_SC_NM") val eduOfficName: String,
+                  @SerializedName("SD_SCHUL_CODE") val schoolCode: String,
+                  @SerializedName("SCHUL_NM") val schoolName: String,
+                  @SerializedName("MMEAL_SC_CODE") val mealCode: String,
+                  @SerializedName("MMEAL_SC_NM") val mealName: String,
+                  @SerializedName("MLSV_YMD") val mealTime: String,
+                  @SerializedName("MLSV_FGR") val mealServiceMaxCapa: String,
+                  @SerializedName("DDISH_NM") val dishName: String,
+                  @SerializedName("ORPLC_INFO") val originInfo: String,
+                  @SerializedName("CAL_INFO") val calInfo: String,
+                  @SerializedName("NTR_INFO") val nutiritionInfo: String,
+                  @SerializedName("MLSV_FROM_YMD") val queryStartDate: String,
+                  @SerializedName("MLSV_TO_YMD") val queryEndDate: String)
+
+
+data class SimpleSchoolData(val name: String,
+                            val address: String,
+                            val schoolCode: String,
+                            val officeCode: String)
+
+data class SimpleSchoolMealData(val name: String,
+                                val date: String,
+                                val meal: String,
+                                val mealKind: String,
+                                val cal: String)
+
 
 /*
 class SchoolData {
