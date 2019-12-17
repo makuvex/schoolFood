@@ -23,6 +23,7 @@ import com.jungbae.schoolfood.view.SearchRecyclerAdapter
 import com.jungbae.schoolfood.view.increaseTouchArea
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
+import io.reactivex.rxkotlin.subscribeBy
 import io.reactivex.rxkotlin.toObservable
 import io.reactivex.subjects.PublishSubject
 import kotlinx.android.synthetic.main.activity_main.*
@@ -34,6 +35,7 @@ import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import java.util.*
 import java.util.concurrent.TimeUnit
+import kotlin.collections.ArrayList
 
 enum class SchoolDataIndex(val index: Int) {
     HEAD(0),
@@ -50,7 +52,7 @@ enum class ActivityResultIndex(val index: Int) {
 class MainActivity : AppCompatActivity() {
     private val disposeBag = CompositeDisposable()
 
-    private lateinit var schoolMealList: MutableList<SimpleSchoolMealData>
+    private lateinit var schoolMealList: ArrayList<SimpleSchoolMealData>
     private lateinit var cardAdapter: HomeRecyclerAdapter
     private lateinit var selectedBehaviorSubject: PublishSubject<SimpleSchoolMealData>
 
@@ -79,7 +81,7 @@ class MainActivity : AppCompatActivity() {
 
     init {
         selectedBehaviorSubject = PublishSubject.create()
-        schoolMealList = mutableListOf()
+        schoolMealList = ArrayList()
         cardAdapter = HomeRecyclerAdapter(schoolMealList, selectedBehaviorSubject)
     }
 
@@ -160,8 +162,14 @@ class MainActivity : AppCompatActivity() {
         val formatter = DateTimeFormatter.ofPattern("yyyyMMdd")
         val today = current.format(formatter)
 
+        Log.d("", "@@@ requestMealInfo")
         data?.let{
-            data.toObservable().observeOn(AndroidSchedulers.mainThread()).flatMap {
+
+            val obList = data.toList()
+
+
+            data.toList().toObservable().observeOn(AndroidSchedulers.mainThread()).flatMap {
+                //NetworkService.getInstance().getSchoolMealData("json", 1, 100, it.officeCode, it.schoolCode, "05b9d532ceeb48dd89238746bd9b0e16", today, today)
                 NetworkService.getInstance().getSchoolMealData("json", 1, 100, it.officeCode, it.schoolCode, "05b9d532ceeb48dd89238746bd9b0e16", today, today)
             }
             .subscribeWith(ObservableResponse<SchoolMealData>(
@@ -208,20 +216,22 @@ class MainActivity : AppCompatActivity() {
     }
 
     fun updateUI(list: List<SimpleSchoolMealData>?) {
-        list?.let {
-            if(it.size > 0) {
-                home_no_data_view.visibility = View.GONE
-                schoolMealList.clear()
-                schoolMealList.addAll(it)
-                cardAdapter.notifyDataSetChanged()
-            } else {
-                home_no_data_view.visibility = View.VISIBLE
-                recycler_view.visibility = View.GONE
+        AndroidSchedulers.mainThread().scheduleDirect {
+            list?.let {
+                if (it.isNotEmpty()) {
+                    home_no_data_view.visibility = View.GONE
+                    schoolMealList.clear()
+                    schoolMealList.addAll(it)
+                    cardAdapter.notifyDataSetChanged()
+                } else {
+                    home_no_data_view.visibility = View.VISIBLE
+                    recycler_view.visibility = View.GONE
+                }
+                return@scheduleDirect
             }
-            return
+            home_no_data_view.visibility = View.VISIBLE
+            recycler_view.visibility = View.GONE
         }
-        home_no_data_view.visibility = View.VISIBLE
-        recycler_view.visibility = View.GONE
     }
 
 //    override fun onCreateOptionsMenu(menu: Menu): Boolean {
