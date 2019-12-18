@@ -6,8 +6,10 @@ import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.content.Context
 import android.content.Intent
+import android.content.SharedPreferences
 import android.graphics.Color
 import android.os.Build
+import com.jungbae.schoolfood.network.preference.PreferenceManager
 import kotlin.properties.Delegates
 
 class  SchoolFoodApplication : Application() {
@@ -15,12 +17,15 @@ class  SchoolFoodApplication : Application() {
     companion object {
         var context: Context by Delegates.notNull()
             private set
+        lateinit var preferences: PreferenceManager
     }
 
     override fun onCreate() {
         super.onCreate()
         context = applicationContext
+        preferences = PreferenceManager()
         //createNotificationChannel()
+
     }
 
     fun createNotificationChannel() {

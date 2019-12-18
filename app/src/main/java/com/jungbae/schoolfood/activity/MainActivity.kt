@@ -18,11 +18,14 @@ import com.jungbae.schoolfood.R
 import com.jungbae.schoolfood.SchoolFoodApplication
 import com.jungbae.schoolfood.network.*
 import com.jungbae.schoolfood.network.preference.PreferenceManager
+import com.jungbae.schoolfood.network.preference.SchoolFoodPreference
 import com.jungbae.schoolfood.view.HomeRecyclerAdapter
 import com.jungbae.schoolfood.view.SearchRecyclerAdapter
 import com.jungbae.schoolfood.view.increaseTouchArea
+import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
+import io.reactivex.rxkotlin.Observables
 import io.reactivex.rxkotlin.subscribeBy
 import io.reactivex.rxkotlin.toObservable
 import io.reactivex.subjects.PublishSubject
@@ -133,7 +136,6 @@ class MainActivity : AppCompatActivity() {
         requestMealInfo()
 
         schoolMealList.clear()
-
         cardAdapter.notifyDataSetChanged()
     }
 
@@ -150,7 +152,7 @@ class MainActivity : AppCompatActivity() {
 
     fun requestMealInfo() {
         val data = PreferenceManager.schoolData
-        //val schoolCode = PreferenceManager.schoolCodeList
+        //val data = SchoolFoodPreference.schoolData
 
 
 //        if(officeCode ==  || schoolCode == "") {
@@ -161,17 +163,49 @@ class MainActivity : AppCompatActivity() {
         val current = LocalDateTime.now()
         val formatter = DateTimeFormatter.ofPattern("yyyyMMdd")
         val today = current.format(formatter)
-
+/*
+        val list = listOf("Alpha", "Beta", "Gamma", "Delta", "Epsilon")
+        list.toObservable() // extension function for Iterables
+            .flatMap { Observable.just(String.format("%s_", it)) }
+            .subscribeBy(  // named arguments for lambda Subscribers
+                onNext = {
+                    Log.e("@@@","@@@ onNext ${it}")
+                },
+                onError =  { it.printStackTrace() },
+                onComplete = { println("Done!") }
+            )
+*/
         Log.d("", "@@@ requestMealInfo")
+        schoolMealList.clear()
         data?.let{
-
-            val obList = data.toList()
-
-
             data.toList().toObservable().observeOn(AndroidSchedulers.mainThread()).flatMap {
                 //NetworkService.getInstance().getSchoolMealData("json", 1, 100, it.officeCode, it.schoolCode, "05b9d532ceeb48dd89238746bd9b0e16", today, today)
+                Log.e("@@@@@@@@@@@@@@@@@@@", "flatMap ${it.reflectionToString()}")
                 NetworkService.getInstance().getSchoolMealData("json", 1, 100, it.officeCode, it.schoolCode, "05b9d532ceeb48dd89238746bd9b0e16", today, today)
             }
+            .subscribeWith(ObservableResponse<SchoolMealData>(
+                onSuccess = {
+                    val list = it.mealServiceDietInfo.get(1).row.map { data ->
+                        SimpleSchoolMealData(data.schoolName, today, data.dishName, data.mealName, data.calInfo)
+                    }
+                    list?.let {
+                        updateUI(it)
+                    }
+
+                    Log.e("@@@@@", "onSuccess ${it.reflectionToString()}")
+                    //Log.d("@@@@@", "onSuccess list ${list}")
+                }, onError = {
+                    Log.e("@@@@@", "@@@@@ error $it")
+                }
+            ))
+
+                    /*
+                .subscribeBy(onNext = {
+                    Log.e("@@@","@@@ onNext ${it}")
+                })
+                */
+
+            /*
             .subscribeWith(ObservableResponse<SchoolMealData>(
                 onSuccess = {
                     val list = it.mealServiceDietInfo.get(1).row.map { data ->
@@ -187,7 +221,7 @@ class MainActivity : AppCompatActivity() {
                     Log.d("@@@", "@@@@@ error $it")
                 }
             ))
-
+*/
 
 
 //            data.forEach {
@@ -220,7 +254,7 @@ class MainActivity : AppCompatActivity() {
             list?.let {
                 if (it.isNotEmpty()) {
                     home_no_data_view.visibility = View.GONE
-                    schoolMealList.clear()
+                    //schoolMealList.clear()
                     schoolMealList.addAll(it)
                     cardAdapter.notifyDataSetChanged()
                 } else {

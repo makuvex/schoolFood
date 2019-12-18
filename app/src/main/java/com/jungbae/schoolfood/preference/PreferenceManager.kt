@@ -1,12 +1,15 @@
 package com.jungbae.schoolfood.network.preference
 
+import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
 import com.afollestad.rxkprefs.RxkPrefs
-import com.afollestad.rxkprefs.adapters.StringSet
 import com.afollestad.rxkprefs.rxkPrefs
 import com.google.gson.GsonBuilder
+import com.google.gson.reflect.TypeToken
 import com.jungbae.schoolfood.SchoolFoodApplication
 import com.jungbae.schoolfood.network.SimpleSchoolData
+
+
 
 object PreferencesConstant {
     val CHILD_NAME = "CHILD_NAME"
@@ -17,103 +20,55 @@ object PreferencesConstant {
 
     val SCHOOL_CODE = "SCHOOL_CODE"
     val SCHOOL_NAME = "SCHOOL_NAME"
+
+    val SCHOOL_DATA = "SCHOOL_DATA"
 }
 
 class PreferenceManager {
 
     companion object {
         private var instance: RxkPrefs? = null
-        private val self: PreferenceManager =
-            PreferenceManager()
+        private val self: PreferenceManager = PreferenceManager()
         //private lateinit var schoolCodeList: MutableList<SimpleSchoolData>
 
         init {
+            Log.e("@@@","@@@ PreferenceManager init")
             instance = instance ?: rxkPrefs(SchoolFoodApplication.context, SchoolFoodApplication.context.packageName, AppCompatActivity.MODE_PRIVATE)
-            instance?.let {
-                //schoolCodeList = listOf<SimpleSchoolData>().toMutableList()
-            }
         }
-
-//        @JvmStatic
-//        var officeCode: String?
-//            get() = instance?.let { it.string(PreferencesConstant.OFFICE_SC_CODE).get() }
-//            set(id) {
-//                instance?.let {
-//                    it.string(PreferencesConstant.OFFICE_SC_CODE).set(id ?: "")
-//                }
-//            }
-
-//        @JvmStatic
-//        var schoolCodeList: MutableSet<String?
-//            get() = instance?.let { it.string(PreferencesConstant.SCHOOL_CODE).get() }
-//            set(id) {
-//                instance?.let {
-//                    it.string(PreferencesConstant.SCHOOL_CODE).set(id ?: "")
-//                }
-//            }
 
         @JvmStatic
         var schoolData: MutableSet<SimpleSchoolData>?
             get() {
                 instance?.run {
                     val gson = GsonBuilder().create()
-                    val data = instance?.let { it.stringSet(PreferencesConstant.SCHOOL_CODE).get() }
-                    return data?.map { gson.fromJson(it, SimpleSchoolData::class.java) }?.toMutableSet()
+                    val data = string(PreferencesConstant.SCHOOL_CODE, "").get()
+                    Log.e("@@@","schoolData get data ${data}")
+
+                    return gson.fromJson(data, object: TypeToken<MutableSet<SimpleSchoolData>>(){}.type)
                 }
                 return null
             }
             set(data) {
                 instance?.let {
-                    data?.run {
-                        val gson = GsonBuilder().create()
-                        val set = data.map { gson.toJson(it) }.toMutableSet()
-                        it.stringSet(PreferencesConstant.SCHOOL_CODE, set)
-                    }
+                    Log.e("@@@","schoolData set data@@@")
+                    val json = GsonBuilder().create().toJson(data)
+                    it.string(PreferencesConstant.SCHOOL_CODE, "").set(json)
                 }
             }
 
-        fun addSchoolData(schoolData: SimpleSchoolData) {
+        fun addSchoolData(data: SimpleSchoolData) {
             instance?.run {
-                val preSet = stringSet(PreferencesConstant.SCHOOL_CODE).get()
-                if(preSet == null) {
-                    val set = mutableSetOf<SimpleSchoolData>()
-                    set.add(schoolData)
-                    stringSet(PreferencesConstant.SCHOOL_CODE, set.map { GsonBuilder().create().toJson(it) }.toMutableSet())
+                if(schoolData == null) {
+                    schoolData = mutableSetOf<SimpleSchoolData>(data)
                 } else {
-                    preSet?.add(GsonBuilder().create().toJson(schoolData))
-                    stringSet(PreferencesConstant.SCHOOL_CODE).set(preSet)
+                    schoolData?.let {
+                        it.add(data)
+                        schoolData = it
+                    }
                 }
             }
         }
 
-//
-//        @JvmStatic
-//        var officeCodeList: MutableSet<String>?
-//            get() = instance?.let { it.stringSet(PreferencesConstant.OFFICE_SC_CODE).get() }
-//            private set(id) {
-//                instance?.let {
-//                    it.stringSet(PreferencesConstant.OFFICE_SC_CODE).set(id!!)
-//                }
-//            }
-//
-//        fun addOfficeCode(code: String) {
-//            instance?.let {
-//                var list = this.officeCodeList
-//                list?.let {
-//                    it.add(code)
-//                    officeCodeList = list
-//                }
-//            }
-//        }
-
-//        @JvmStatic
-//        var officeCode: Long?
-//            get() = instance?.let { it.long(PreferencesConstant.OFFICE_SC_CODE).get() }
-//            set(time) {
-//                instance?.let {
-//                    it.long(PreferencesConstant.OFFICE_SC_CODE).set(time ?: 0)
-//                }
-//            }
     }
 
 }

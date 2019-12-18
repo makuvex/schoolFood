@@ -18,6 +18,7 @@ import com.jungbae.schoolfood.R
 import com.jungbae.schoolfood.SchoolFoodApplication
 import com.jungbae.schoolfood.network.*
 import com.jungbae.schoolfood.network.preference.PreferenceManager
+import com.jungbae.schoolfood.network.preference.SchoolFoodPreference
 import com.jungbae.schoolfood.view.SearchRecyclerAdapter
 import com.jungbae.schoolfood.view.increaseTouchArea
 import io.reactivex.android.schedulers.AndroidSchedulers
@@ -107,6 +108,8 @@ class SearchSchoolActivity : AppCompatActivity() {
                 Toast.makeText(SchoolFoodApplication.context, "positiveButton", Toast.LENGTH_SHORT).show()
 
                 PreferenceManager.addSchoolData(data)
+                //SchoolFoodPreference.addSchoolData(data)
+
 //                PreferenceManager.schoolCode = data.schoolCode
 //                PreferenceManager.officeCode = data.officeCode
 

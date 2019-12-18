@@ -3,7 +3,9 @@ package com.jungbae.schoolfood.network.preference
 import android.content.SharedPreferences
 import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
+import com.google.gson.Gson
 import com.google.gson.GsonBuilder
+import com.google.gson.reflect.TypeToken
 import com.jungbae.schoolfood.SchoolFoodApplication
 import com.jungbae.schoolfood.network.SimpleSchoolData
 
@@ -33,9 +35,13 @@ class SchoolFoodPreference {
             get() {
                 instance?.run {
                     val gson = GsonBuilder().create()
-                    val data = instance?.let { it.getStringSet(PreferencesConstant.SCHOOL_CODE, null) }
+                    val data = getString(PreferencesConstant.SCHOOL_CODE, null)
                     Log.e("@@@","schoolData get data ${data}")
-                    return data?.map { gson.fromJson(it, SimpleSchoolData::class.java) }?.toMutableSet()
+
+                    val type = object: TypeToken<MutableSet<SimpleSchoolData>>(){}.type
+                    val set = gson.fromJson<MutableSet<SimpleSchoolData>>(data, type)
+
+                    return gson.fromJson<MutableSet<SimpleSchoolData>>(data, type)
                 }
                 return null
             }
@@ -43,26 +49,27 @@ class SchoolFoodPreference {
                 instance?.let {
                     data?.run {
                         Log.e("@@@","schoolData set data@@@")
-                        val gson = GsonBuilder().create()
-                        val set = data.map { gson.toJson(it) }.toMutableSet()
-                        it.edit().putStringSet(PreferencesConstant.SCHOOL_CODE, set)
-                        //it.stringSet(PreferencesConstant.SCHOOL_CODE, set)
+                        val set = GsonBuilder().create().toJson(data)
+                        it.edit().putString(PreferencesConstant.SCHOOL_CODE, set).apply()
                     }
                 }
             }
 
-        fun addSchoolData(schoolData: SimpleSchoolData) {
+        fun addSchoolData(data: SimpleSchoolData) {
             instance?.run {
-                val preSet = getStringSet(PreferencesConstant.SCHOOL_CODE, null)
+                val preSet = getString(PreferencesConstant.SCHOOL_CODE, null)
                 if(preSet == null) {
                     Log.e("@@@","preSet null set will be changed")
+
                     val set = mutableSetOf<SimpleSchoolData>()
-                    set.add(schoolData)
-                    edit().putStringSet(PreferencesConstant.SCHOOL_CODE, set.map { GsonBuilder().create().toJson(it) }.toMutableSet())
+                    set.add(data)
+
+                    schoolData = set
+                    //edit().putStringSet(PreferencesConstant.SCHOOL_CODE, set.map { GsonBuilder().create().toJson(it) }.toMutableSet()).apply()
                 } else {
-                    preSet.forEach { Log.e("@@@","@@@ preSet.forEach ${it}") }
-                    preSet?.add(GsonBuilder().create().toJson(schoolData))
-                    edit().putStringSet(PreferencesConstant.SCHOOL_CODE, preSet)
+                    var pre = schoolData
+                    pre?.add(data)
+                    schoolData = pre
                 }
             }
         }

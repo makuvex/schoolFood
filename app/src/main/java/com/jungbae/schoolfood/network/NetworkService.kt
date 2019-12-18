@@ -1,6 +1,7 @@
 package com.jungbae.schoolfood.network
 
 import android.content.Context
+import android.util.Log
 import java.util.ArrayList
 import io.reactivex.Observable
 import io.reactivex.Scheduler
@@ -68,6 +69,7 @@ class NetworkService {
                           fromDate: String,
                           toDate: String): Observable<SchoolMealData> {
 
+        Log.e("@@@", "officeCode ${officeCode}, schoolCode ${schoolCode}")
         return service.getSchoolMealData(type, index, size, officeCode, schoolCode, authKey, fromDate, toDate)
     }
 }
