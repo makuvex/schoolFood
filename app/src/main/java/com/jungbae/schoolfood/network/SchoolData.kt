@@ -63,7 +63,9 @@ data class SimpleSchoolMealData(val name: String,
                                 val date: String,
                                 val meal: String,
                                 val mealKind: String,
-                                val cal: String)
+                                val cal: String,
+                                val schoolCode: String,
+                                val officeCode: String)
 
 
 /*

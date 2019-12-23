@@ -18,6 +18,7 @@ import com.jungbae.schoolfood.R
 import com.jungbae.schoolfood.SchoolFoodApplication
 import com.jungbae.schoolfood.network.*
 import com.jungbae.schoolfood.network.preference.PreferenceManager
+import com.jungbae.schoolfood.network.preference.PreferencesConstant
 import com.jungbae.schoolfood.network.preference.SchoolFoodPreference
 import com.jungbae.schoolfood.view.HomeRecyclerAdapter
 import com.jungbae.schoolfood.view.SearchRecyclerAdapter
@@ -86,6 +87,7 @@ class MainActivity : AppCompatActivity() {
         selectedBehaviorSubject = PublishSubject.create()
         schoolMealList = ArrayList()
         cardAdapter = HomeRecyclerAdapter(schoolMealList, selectedBehaviorSubject)
+
     }
 
     override fun onDestroy() {
@@ -118,7 +120,18 @@ class MainActivity : AppCompatActivity() {
                 Log.d("@@@", "optionDisposable")
             }
 
-        disposeBag.addAll(searchDisposable, optionDisposable)
+        val itemClicksDisposable = selectedBehaviorSubject
+            .throttleFirst(1, TimeUnit.SECONDS)
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe {
+                Log.e("@@@", "item clicks ${it}")
+
+                val intent = Intent(this, SchoolFoodDetailActivity::class.java)
+                intent.putExtra(PreferencesConstant.SCHOOL_CODE, it.schoolCode)
+                intent.putExtra(PreferencesConstant.OFFICE_SC_CODE, it.officeCode)
+                startActivity(intent)
+            }
+        disposeBag.addAll(searchDisposable, optionDisposable, itemClicksDisposable)
     }
 
     fun startActivity(index: Int) {
@@ -163,6 +176,7 @@ class MainActivity : AppCompatActivity() {
         val current = LocalDateTime.now()
         val formatter = DateTimeFormatter.ofPattern("yyyyMMdd")
         val today = current.format(formatter)
+        val todayDesc = current.format(DateTimeFormatter.ofPattern("yyyy년 MM월 dd일"))
 /*
         val list = listOf("Alpha", "Beta", "Gamma", "Delta", "Epsilon")
         list.toObservable() // extension function for Iterables
@@ -177,19 +191,28 @@ class MainActivity : AppCompatActivity() {
 */
         Log.d("", "@@@ requestMealInfo")
         schoolMealList.clear()
+
         data?.let{
+            if(data.isNotEmpty()) {
+                home_no_data_view.visibility = View.GONE
+                recycler_view.visibility = View.VISIBLE
+            }
             data.toList().toObservable().observeOn(AndroidSchedulers.mainThread()).flatMap {
                 //NetworkService.getInstance().getSchoolMealData("json", 1, 100, it.officeCode, it.schoolCode, "05b9d532ceeb48dd89238746bd9b0e16", today, today)
                 Log.e("@@@@@@@@@@@@@@@@@@@", "flatMap ${it.reflectionToString()}")
+
+                addCard(SimpleSchoolMealData(it.name, todayDesc, "", "", "", it.schoolCode, it.officeCode))
                 NetworkService.getInstance().getSchoolMealData("json", 1, 100, it.officeCode, it.schoolCode, "05b9d532ceeb48dd89238746bd9b0e16", today, today)
             }
             .subscribeWith(ObservableResponse<SchoolMealData>(
                 onSuccess = {
-                    val list = it.mealServiceDietInfo.get(1).row.map { data ->
-                        SimpleSchoolMealData(data.schoolName, today, data.dishName, data.mealName, data.calInfo)
-                    }
-                    list?.let {
-                        updateUI(it)
+                    val data = it.mealServiceDietInfo.get(1).row.map { data ->
+                        SimpleSchoolMealData(data.schoolName, todayDesc, data.dishName, data.mealName, data.calInfo, data.schoolCode, data.eduOfficecode)
+                    }.first()
+
+                    data?.let {
+                        //updateUI(it)
+                        updateCard(it)
                     }
 
                     Log.e("@@@@@", "onSuccess ${it.reflectionToString()}")
@@ -248,6 +271,22 @@ class MainActivity : AppCompatActivity() {
 
         }
     }
+
+    fun addCard(data: SimpleSchoolMealData) {
+        AndroidSchedulers.mainThread().scheduleDirect {
+            schoolMealList.add(data)
+            cardAdapter.notifyDataSetChanged()
+        }
+    }
+
+    fun updateCard(data: SimpleSchoolMealData) {
+        AndroidSchedulers.mainThread().scheduleDirect {
+            val index = schoolMealList.indexOfFirst{ it.name == data.name }
+            schoolMealList.set(index, data)
+            cardAdapter.notifyDataSetChanged()
+        }
+    }
+
 
     fun updateUI(list: List<SimpleSchoolMealData>?) {
         AndroidSchedulers.mainThread().scheduleDirect {

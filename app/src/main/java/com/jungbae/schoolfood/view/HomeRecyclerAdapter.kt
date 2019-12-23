@@ -14,9 +14,6 @@ class HomeRecyclerAdapter(private val list: List<SimpleSchoolMealData>, private 
     }
 
     override fun onBindViewHolder(holder: HomeCardHolder, position: Int) {
-//        val name = list.get(position).name
-//        val address = list.get(position).address
-//
         holder.bind(list.get(position), subject)
     }
 
