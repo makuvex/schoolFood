@@ -65,7 +65,8 @@ data class SimpleSchoolMealData(val name: String,
                                 val mealKind: String,
                                 val cal: String,
                                 val schoolCode: String,
-                                val officeCode: String)
+                                val officeCode: String,
+                                val today: Boolean = false)
 
 
 /*

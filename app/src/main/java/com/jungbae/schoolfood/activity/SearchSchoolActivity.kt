@@ -26,7 +26,10 @@ import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.subjects.BehaviorSubject
 import io.reactivex.subjects.PublishSubject
 import kotlinx.android.synthetic.main.activity_main.*
+import kotlinx.android.synthetic.main.activity_meal_detail.*
 import kotlinx.android.synthetic.main.activity_search.*
+import kotlinx.android.synthetic.main.activity_search.back
+import kotlinx.android.synthetic.main.activity_search.recycler_view
 import kotlinx.android.synthetic.main.activity_search.search
 import java.util.concurrent.TimeUnit
 import java.util.prefs.Preferences
@@ -54,7 +57,7 @@ class SearchSchoolActivity : AppCompatActivity() {
 
     init {
         selectedBehaviorSubject = PublishSubject.create()
-        schoolList = mutableListOf(SimpleSchoolData("1","2", "3", "4"))
+        schoolList = ArrayList()
         schoolAdapter = SearchRecyclerAdapter(schoolList, selectedBehaviorSubject)
     }
 
@@ -64,11 +67,18 @@ class SearchSchoolActivity : AppCompatActivity() {
             adapter = schoolAdapter
         }
         increaseTouchArea(search, 50)
-        edit_text.setText("신중")
+        //edit_text.setText("신중")
         edit_text.requestFocus()
     }
 
     fun bindRxUI() {
+        val backDisposable = back.clicks()
+            .throttleFirst(1, TimeUnit.SECONDS)
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe{
+                finish()
+            }
+
         val searchDisposable = search.clicks()
             .throttleFirst(1, TimeUnit.SECONDS)
             .filter{ edit_text.length() > 0 }
@@ -99,7 +109,7 @@ class SearchSchoolActivity : AppCompatActivity() {
             showMaterialDialog(it)
         }
 
-        disposeBag.addAll(searchDisposable, subjectDisposable)
+        disposeBag.addAll(searchDisposable, subjectDisposable, backDisposable)
     }
 
     fun showMaterialDialog(data: SimpleSchoolData) {

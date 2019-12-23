@@ -8,12 +8,14 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.afollestad.materialdialogs.MaterialDialog
 import com.afollestad.materialdialogs.callbacks.onShow
+import com.jakewharton.rxbinding3.view.clicks
 import com.jungbae.schoolfood.R
 import com.jungbae.schoolfood.SchoolFoodApplication
 import com.jungbae.schoolfood.network.*
 import com.jungbae.schoolfood.network.preference.PreferenceManager
 import com.jungbae.schoolfood.network.preference.PreferencesConstant
 import com.jungbae.schoolfood.view.MealDetailRecyclerAdapter
+import com.jungbae.schoolfood.view.increaseTouchArea
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.subjects.PublishSubject
@@ -22,6 +24,7 @@ import java.text.SimpleDateFormat
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import java.util.*
+import java.util.concurrent.TimeUnit
 import kotlin.collections.ArrayList
 
 
@@ -67,40 +70,23 @@ class SchoolFoodDetailActivity : AppCompatActivity() {
             layoutManager = LinearLayoutManager(applicationContext)
             adapter = mealAdapter
         }
+        increaseTouchArea(back, 50)
     }
 
     fun bindRxUI() {
-//        val searchDisposable = search.clicks()
-//            .throttleFirst(1, TimeUnit.SECONDS)
-//            .filter{ edit_text.length() > 0 }
-//            .observeOn(AndroidSchedulers.mainThread())
-//            .subscribe{
-//                NetworkService.getInstance().getSchoolData("json", 1, 100, edit_text.text.toString())
-//                    .observeOn(AndroidSchedulers.mainThread())
-//                    .subscribeWith(ObservableResponse<SchoolData>(
-//                        onSuccess = {
-//                            val list = it.schoolInfo.get(1).row.map{ data ->
-//                                SimpleSchoolData(data.schoolName, data.roadNameAddress, data.schoolCode, data.eduOfficecode)
-//                            }
-//
-//                            list?.let {
-//                                updateUI(it)
-//                            }
-//
-//                            Log.d("@@@@@", "onSuccess ${it.reflectionToString()}")
-//                            Log.d("@@@@@", "onSuccess list ${list}")
-//                        }, onError = {
-//                            Log.d("@@@", "@@@@@ error $it")
-//                        }
-//                ))
-//            }
+        val backDisposable = back.clicks()
+            .throttleFirst(1, TimeUnit.SECONDS)
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe{
+                finish()
+            }
 //
 //        val subjectDisposable = selectedBehaviorSubject.filter{ it != null }.subscribe {
 //            //Toast.makeText(SchoolFoodApplication.context, it.name, Toast.LENGTH_SHORT).show()
 //            showMaterialDialog(it)
 //        }
 //
-//        disposeBag.addAll(searchDisposable, subjectDisposable)
+        disposeBag.addAll(backDisposable)
     }
 
     fun showMaterialDialog(data: SimpleSchoolData) {
@@ -163,6 +149,16 @@ class SchoolFoodDetailActivity : AppCompatActivity() {
                     data?.let {
                         detail_title.text = it.first().name
                         addCard(it)
+
+                        val index = it.indexOfFirst { data ->
+                            data.date == today
+                        }
+
+                        if(index > 0) {
+                            recycler_view.postDelayed(Runnable {
+                                recycler_view.scrollToPosition(index)
+                            }, 100)
+                        }
                         //updateUI(it)
                         //updateCard(it)
                     }
