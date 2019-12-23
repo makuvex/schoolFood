@@ -150,48 +150,21 @@ class SchoolFoodDetailActivity : AppCompatActivity() {
 
         val sif = SimpleDateFormat("yyyyMMdd")
 
-        Log.e("","start ${}")
-        NetworkService.getInstance().getSchoolMealData("json", 1, 100, ofCode, scCode, "05b9d532ceeb48dd89238746bd9b0e16", sif.format(firstDayOfMonth), sif.format(lastDayOfMonth))
-        .subscribeWith(ObservableResponse<SchoolMealData>(
-            onSuccess = {
-                val data = it.mealServiceDietInfo.get(1).row.map { data ->
-                    SimpleSchoolMealData(data.schoolName, todayDesc, data.dishName, data.mealName, data.calInfo, data.schoolCode, data.eduOfficecode)
-                }
+        Log.e("@@@","start ${sif.format(firstDayOfMonth)}, last ${sif.format(lastDayOfMonth)}")
 
-                data?.let {
-                    //updateUI(it)
-                    //updateCard(it)
-                }
-
-                Log.e("@@@@@", "onSuccess ${it.reflectionToString()}")
-                //Log.d("@@@@@", "onSuccess list ${list}")
-            }, onError = {
-                Log.e("@@@@@", "@@@@@ error $it")
-            }
-        ))
-
-/*
-        data?.let{
-            if(data.isNotEmpty()) {
-                home_no_data_view.visibility = View.GONE
-                recycler_view.visibility = View.VISIBLE
-            }
-            data.toList().toObservable().observeOn(AndroidSchedulers.mainThread()).flatMap {
-                //NetworkService.getInstance().getSchoolMealData("json", 1, 100, it.officeCode, it.schoolCode, "05b9d532ceeb48dd89238746bd9b0e16", today, today)
-                Log.e("@@@@@@@@@@@@@@@@@@@", "flatMap ${it.reflectionToString()}")
-
-                addCard(SimpleSchoolMealData(it.name, todayDesc, "", "", "", it.schoolCode, it.officeCode))
-                NetworkService.getInstance().getSchoolMealData("json", 1, 100, it.officeCode, it.schoolCode, "05b9d532ceeb48dd89238746bd9b0e16", today, today)
-            }
+        val dispose =
+            NetworkService.getInstance().getSchoolMealData("json", 1, 100, ofCode, scCode, "05b9d532ceeb48dd89238746bd9b0e16", sif.format(firstDayOfMonth), sif.format(lastDayOfMonth))
             .subscribeWith(ObservableResponse<SchoolMealData>(
                 onSuccess = {
                     val data = it.mealServiceDietInfo.get(1).row.map { data ->
-                        SimpleSchoolMealData(data.schoolName, todayDesc, data.dishName, data.mealName, data.calInfo, data.schoolCode, data.eduOfficecode)
-                    }.first()
+                        SimpleSchoolMealData(data.schoolName, data.mealTime, data.dishName, data.mealName, data.calInfo, data.schoolCode, data.eduOfficecode)
+                    }
 
                     data?.let {
+                        detail_title.text = it.first().name
+                        addCard(it)
                         //updateUI(it)
-                        updateCard(it)
+                        //updateCard(it)
                     }
 
                     Log.e("@@@@@", "onSuccess ${it.reflectionToString()}")
@@ -201,13 +174,15 @@ class SchoolFoodDetailActivity : AppCompatActivity() {
                 }
             ))
 
-        }
-        */
+        disposeBag.add(dispose)
+
+
     }
 
-    fun addCard(data: SimpleSchoolMealData) {
+    fun addCard(list: List<SimpleSchoolMealData>) {
         AndroidSchedulers.mainThread().scheduleDirect {
-            mealList.add(data)
+            mealList.addAll(list)
+
             mealAdapter.notifyDataSetChanged()
         }
     }
