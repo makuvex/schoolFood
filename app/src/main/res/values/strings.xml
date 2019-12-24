@@ -1,4 +1,7 @@
 <resources>
     <string name="app_name">SchoolFood</string>
     <string name="action_settings">Settings</string>
+    <string name="admob_app_id">ca-app-pub-7541722331477577~6848554548</string>
+    <string name="banner_ad_unit_id">ca-app-pub-7541722331477577/2717737841</string>
+    <string name="banner_ad_unit_id_for_test">ca-app-pub-3940256099942544/6300978111</string>
 </resources>

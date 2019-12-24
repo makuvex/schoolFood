@@ -1,12 +1,16 @@
 package com.jungbae.schoolfood.view
 
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.animation.AnimationUtils
 import androidx.recyclerview.widget.RecyclerView
 import com.jungbae.schoolfood.R
+import com.jungbae.schoolfood.SchoolFoodApplication
 import com.jungbae.schoolfood.network.SimpleSchoolMealData
 import io.reactivex.subjects.PublishSubject
+import com.jungbae.schoolfood.view.increaseTouchArea
 import kotlinx.android.synthetic.main.home_card_row.view.*
 
 //HomeCardEmptyHolder
@@ -18,7 +22,7 @@ class HomeCardHolder(inflater: LayoutInflater, parent: ViewGroup):
 
     var data: SimpleSchoolMealData? = null
 
-    fun bind(data: SimpleSchoolMealData, subject: PublishSubject<SimpleSchoolMealData>) {
+    fun bind(data: SimpleSchoolMealData, selectSubject: PublishSubject<SimpleSchoolMealData>, deleteSubject: PublishSubject<SimpleSchoolMealData>, option: Boolean = false) {
         this.data = data
 
         itemView.school_name.text = data.name
@@ -31,13 +35,39 @@ class HomeCardHolder(inflater: LayoutInflater, parent: ViewGroup):
             itemView.meal_info.text = "급식 정보 없음"
             itemView.more.visibility = View.GONE
         }
-
+        itemView.increaseTouchArea(itemView.delete, 50)
         itemView.meal_time.text = data.mealKind
         itemView.extra_info.text = data.cal
 
         itemView.setOnClickListener {
-            subject?.let {
+            if(option) {
+                return@setOnClickListener
+            }
+            selectSubject?.let {
                 it.onNext(data)
+            }
+        }
+
+        itemView.delete.setOnClickListener{
+            Log.e("@@@","@@@ delete click")
+            deleteSubject?.let {
+                it.onNext(data)
+            }
+        }
+
+        updateUI(option)
+    }
+
+    fun updateUI(option: Boolean) {
+        when(option) {
+            true ->  {
+                val ani = AnimationUtils.loadAnimation(SchoolFoodApplication.context, R.anim.shake)
+                itemView.delete.startAnimation(ani)
+                itemView.delete.visibility = View.VISIBLE
+            }
+            false -> {
+                itemView.delete.clearAnimation()
+                itemView.delete.visibility = View.INVISIBLE
             }
         }
     }

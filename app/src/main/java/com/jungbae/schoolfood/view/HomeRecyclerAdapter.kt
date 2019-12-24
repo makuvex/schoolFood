@@ -7,18 +7,25 @@ import com.jungbae.schoolfood.network.SimpleSchoolMealData
 import io.reactivex.subjects.PublishSubject
 
 
-class HomeRecyclerAdapter(private val list: List<SimpleSchoolMealData>, private var subject: PublishSubject<SimpleSchoolMealData>): RecyclerView.Adapter<HomeCardHolder>() {
+class HomeRecyclerAdapter(private val list: List<SimpleSchoolMealData>, private var selectSubject: PublishSubject<SimpleSchoolMealData>, private var deleteSubject: PublishSubject<SimpleSchoolMealData>): RecyclerView.Adapter<HomeCardHolder>() {
+
+    private var option: Boolean = false
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): HomeCardHolder {
         return HomeCardHolder(LayoutInflater.from(parent.context), parent)
     }
 
     override fun onBindViewHolder(holder: HomeCardHolder, position: Int) {
-        holder.bind(list.get(position), subject)
+        holder.bind(list.get(position), selectSubject, deleteSubject, option)
     }
 
     override fun getItemCount(): Int {
         return list.size
+    }
+
+    fun notifyDataSetChangedWith(option: Boolean) {
+        this.option = option
+        this.notifyDataSetChanged()
     }
 
 }

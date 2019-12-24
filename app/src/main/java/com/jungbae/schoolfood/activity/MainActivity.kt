@@ -1,33 +1,24 @@
 package com.jungbae.schoolfood.activity
 
 import android.app.Activity
-import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.view.View
-import android.widget.Toast
-import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
-import com.afollestad.materialdialogs.MaterialDialog
-import com.afollestad.materialdialogs.callbacks.onDismiss
-import com.afollestad.materialdialogs.callbacks.onShow
+import com.google.android.gms.ads.AdListener
+import com.google.android.gms.ads.AdRequest
+import com.google.android.gms.ads.MobileAds
 import com.jakewharton.rxbinding3.view.clicks
 import com.jungbae.schoolfood.R
-import com.jungbae.schoolfood.SchoolFoodApplication
 import com.jungbae.schoolfood.network.*
 import com.jungbae.schoolfood.network.preference.PreferenceManager
 import com.jungbae.schoolfood.network.preference.PreferencesConstant
-import com.jungbae.schoolfood.network.preference.SchoolFoodPreference
 import com.jungbae.schoolfood.view.HomeRecyclerAdapter
-import com.jungbae.schoolfood.view.SearchRecyclerAdapter
 import com.jungbae.schoolfood.view.increaseTouchArea
-import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
-import io.reactivex.rxkotlin.Observables
-import io.reactivex.rxkotlin.subscribeBy
 import io.reactivex.rxkotlin.toObservable
 import io.reactivex.subjects.PublishSubject
 import kotlinx.android.synthetic.main.activity_main.*
@@ -37,9 +28,8 @@ import kotlinx.android.synthetic.main.activity_search.recycler_view
 import kotlinx.android.synthetic.main.content_main.*
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
-import java.util.*
 import java.util.concurrent.TimeUnit
-import kotlin.collections.ArrayList
+
 
 enum class SchoolDataIndex(val index: Int) {
     HEAD(0),
@@ -59,6 +49,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var schoolMealList: ArrayList<SimpleSchoolMealData>
     private lateinit var cardAdapter: HomeRecyclerAdapter
     private lateinit var selectedBehaviorSubject: PublishSubject<SimpleSchoolMealData>
+    private lateinit var deleteBehaviorSubject: PublishSubject<SimpleSchoolMealData>
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -85,8 +76,9 @@ class MainActivity : AppCompatActivity() {
 
     init {
         selectedBehaviorSubject = PublishSubject.create()
+        deleteBehaviorSubject = PublishSubject.create()
         schoolMealList = ArrayList()
-        cardAdapter = HomeRecyclerAdapter(schoolMealList, selectedBehaviorSubject)
+        cardAdapter = HomeRecyclerAdapter(schoolMealList, selectedBehaviorSubject, deleteBehaviorSubject)
 
     }
 
@@ -101,6 +93,18 @@ class MainActivity : AppCompatActivity() {
             adapter = cardAdapter
         }
         increaseTouchArea(search, 50)
+        increaseTouchArea(option, 50)
+        option.isSelected = false
+
+        MobileAds.initialize(this, getString(com.jungbae.schoolfood.R.string.admob_app_id))
+        adView.loadAd(AdRequest.Builder().build())
+        adView.adListener = object: AdListener() {
+            override fun onAdLoaded() { Log.e("@@@","onAdLoaded") }
+            override fun onAdFailedToLoad(errorCode : Int) { Log.e("@@@","onAdFailedToLoad") }
+            override fun onAdOpened() { Log.e("@@@","onAdOpened") }
+            override fun onAdLeftApplication() { Log.e("@@@","onAdLeftApplication") }
+            override fun onAdClosed() { Log.e("@@@","onAdClosed") }
+        }
     }
 
     fun bindUI() {
@@ -113,10 +117,17 @@ class MainActivity : AppCompatActivity() {
             }
 
         val optionDisposable = option.clicks()
-            .throttleFirst(1, TimeUnit.SECONDS)
+            .throttleFirst(200, TimeUnit.MILLISECONDS)
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe {
+                option.isSelected = !option.isSelected
+                val resId: Int = when(option.isSelected) {
+                    true -> R.drawable.cancel
+                    false -> R.drawable.trash
+                }
 
+                option.setBackgroundResource(resId)
+                cardAdapter.notifyDataSetChangedWith(option.isSelected)
                 Log.d("@@@", "optionDisposable")
             }
 
@@ -126,12 +137,26 @@ class MainActivity : AppCompatActivity() {
             .subscribe {
                 Log.e("@@@", "item clicks ${it}")
 
+//                if(it.meal.isEmpty()) {
+//                    Toast.makeText(this, "급식 정보가 없습니다.", Toast.LENGTH_SHORT).show()
+//                    return@subscribe
+//                }
                 val intent = Intent(this, SchoolFoodDetailActivity::class.java)
                 intent.putExtra(PreferencesConstant.SCHOOL_CODE, it.schoolCode)
                 intent.putExtra(PreferencesConstant.OFFICE_SC_CODE, it.officeCode)
+                intent.putExtra(PreferencesConstant.SCHOOL_NAME, it.name)
                 startActivity(intent)
             }
-        disposeBag.addAll(searchDisposable, optionDisposable, itemClicksDisposable)
+
+        val itemDeleteDisposable = deleteBehaviorSubject
+            .throttleFirst(1, TimeUnit.SECONDS)
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe {
+                Log.e("@@@", "item delete ${it}")
+
+            }
+
+        disposeBag.addAll(searchDisposable, optionDisposable, itemClicksDisposable, itemDeleteDisposable)
     }
 
     fun startActivity(index: Int) {
@@ -149,7 +174,7 @@ class MainActivity : AppCompatActivity() {
         requestMealInfo()
 
         schoolMealList.clear()
-        cardAdapter.notifyDataSetChanged()
+        cardAdapter.notifyDataSetChangedWith(option.isSelected)
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
@@ -275,7 +300,7 @@ class MainActivity : AppCompatActivity() {
     fun addCard(data: SimpleSchoolMealData) {
         AndroidSchedulers.mainThread().scheduleDirect {
             schoolMealList.add(data)
-            cardAdapter.notifyDataSetChanged()
+            cardAdapter.notifyDataSetChangedWith(option.isSelected)
         }
     }
 
@@ -283,7 +308,7 @@ class MainActivity : AppCompatActivity() {
         AndroidSchedulers.mainThread().scheduleDirect {
             val index = schoolMealList.indexOfFirst{ it.name == data.name }
             schoolMealList.set(index, data)
-            cardAdapter.notifyDataSetChanged()
+            cardAdapter.notifyDataSetChangedWith(option.isSelected)
         }
     }
 
@@ -295,7 +320,7 @@ class MainActivity : AppCompatActivity() {
                     home_no_data_view.visibility = View.GONE
                     //schoolMealList.clear()
                     schoolMealList.addAll(it)
-                    cardAdapter.notifyDataSetChanged()
+                    cardAdapter.notifyDataSetChangedWith(option.isSelected)
                 } else {
                     home_no_data_view.visibility = View.VISIBLE
                     recycler_view.visibility = View.GONE

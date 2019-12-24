@@ -36,6 +36,7 @@ class SchoolFoodDetailActivity : AppCompatActivity() {
 
     var schoolCode: String? = null
     var officeCode: String? = null
+    var schoolName: String? = null
 
     private lateinit var selectedBehaviorSubject: PublishSubject<SimpleSchoolMealData>
 
@@ -46,6 +47,7 @@ class SchoolFoodDetailActivity : AppCompatActivity() {
         intent?.let {
             officeCode = it.getStringExtra(PreferencesConstant.OFFICE_SC_CODE)
             schoolCode = it.getStringExtra(PreferencesConstant.SCHOOL_CODE)
+            schoolName = it.getStringExtra(PreferencesConstant.SCHOOL_NAME)
         }
 
         initializeUI()
@@ -71,13 +73,14 @@ class SchoolFoodDetailActivity : AppCompatActivity() {
             adapter = mealAdapter
         }
         increaseTouchArea(back, 50)
+        detail_title.text = schoolName
     }
 
     fun bindRxUI() {
         val backDisposable = back.clicks()
             .throttleFirst(1, TimeUnit.SECONDS)
             .observeOn(AndroidSchedulers.mainThread())
-            .subscribe{
+            .subscribe {
                 finish()
             }
 //
@@ -89,28 +92,17 @@ class SchoolFoodDetailActivity : AppCompatActivity() {
         disposeBag.addAll(backDisposable)
     }
 
-    fun showMaterialDialog(data: SimpleSchoolData) {
-        MaterialDialog(this).show {
-            positiveButton(text = "확인") {
-                Toast.makeText(SchoolFoodApplication.context, "positiveButton", Toast.LENGTH_SHORT).show()
-
-                PreferenceManager.addSchoolData(data)
-                //SchoolFoodPreference.addSchoolData(data)
-
-//                PreferenceManager.schoolCode = data.schoolCode
-//                PreferenceManager.officeCode = data.officeCode
-
-                setResult(RESULT_OK, Intent())
-                (windowContext as SearchSchoolActivity).finish()
+    fun showMaterialDialog() {
+        AndroidSchedulers.mainThread().scheduleDirect {
+            MaterialDialog(this).show {
+                positiveButton(text = "확인") {
+                    (windowContext as SchoolFoodDetailActivity).finish()
+                }
+                onShow {
+                    title(text = "알림")
+                    message(text = "급식 정보가 없습니다.")
+                }
             }
-            negativeButton(text = "취소") {
-                Toast.makeText(SchoolFoodApplication.context, "negativeButton", Toast.LENGTH_SHORT).show()
-            }
-            onShow {
-                title(text = "알림")
-                message(text = "${data.name}를 홈카드에 추가 할까요?")
-            }
-
         }
     }
 
@@ -147,9 +139,7 @@ class SchoolFoodDetailActivity : AppCompatActivity() {
                     }
 
                     data?.let {
-                        detail_title.text = it.first().name
                         addCard(it)
-
                         val index = it.indexOfFirst { data ->
                             data.date == today
                         }
@@ -167,6 +157,7 @@ class SchoolFoodDetailActivity : AppCompatActivity() {
                     //Log.d("@@@@@", "onSuccess list ${list}")
                 }, onError = {
                     Log.e("@@@@@", "@@@@@ error $it")
+                    showMaterialDialog()
                 }
             ))
 
