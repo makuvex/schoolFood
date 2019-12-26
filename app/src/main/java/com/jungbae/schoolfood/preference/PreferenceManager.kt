@@ -69,6 +69,15 @@ class PreferenceManager {
             }
         }
 
+        fun removeSchoolData(officeCode: String, schoolCode: String) {
+            instance?.run {
+                schoolData?.let {
+                    it.removeIf { it.officeCode == officeCode && it.schoolCode == schoolCode }
+                    schoolData = it
+                }
+            }
+        }
+
     }
 
 }

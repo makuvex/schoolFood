@@ -8,6 +8,7 @@ enum class SchoolDataIndex(val index: Int) {
     RESULT_CODE(1)
 }
 
+/* SchoolData */
 data class SchoolData(val schoolInfo: ArrayList<SchoolInfo>): BaseRespData()
 data class SchoolInfo(val head: ArrayList<Head>,
                       var row: ArrayList<School>)
@@ -31,9 +32,7 @@ data class School(  @SerializedName("ATPT_OFCDC_SC_CODE") val eduOfficecode: Str
                     @SerializedName("HMPG_ADRES") val homePage: String,
                     @SerializedName("FOND_YMD") val establishmentDate: String)
 
-///////////
-
-
+/* SchoolMealData */
 data class SchoolMealData(val mealServiceDietInfo: ArrayList<MealServiceDietInfo>): BaseRespData()
 data class MealServiceDietInfo(val head: ArrayList<Head>,
                                var row: ArrayList<Meal>)
@@ -53,6 +52,7 @@ data class Meal(  @SerializedName("ATPT_OFCDC_SC_CODE") val eduOfficecode: Strin
                   @SerializedName("MLSV_FROM_YMD") val queryStartDate: String,
                   @SerializedName("MLSV_TO_YMD") val queryEndDate: String)
 
+/* UserData */
 
 data class SimpleSchoolData(val name: String,
                             val address: String,

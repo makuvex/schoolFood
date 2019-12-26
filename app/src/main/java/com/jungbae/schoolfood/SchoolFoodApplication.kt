@@ -25,19 +25,20 @@ class  SchoolFoodApplication : Application() {
         context = applicationContext
         preferences = PreferenceManager()
         //createNotificationChannel()
-
     }
 
     fun createNotificationChannel() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-            val notificationChannel = NotificationChannel("학교 급식", "학교 급식 알림", NotificationManager.IMPORTANCE_DEFAULT)
-            notificationChannel.description = "학교 급식 알림"
-            notificationChannel.enableLights(true)
-            notificationChannel.lightColor = Color.GREEN
-            notificationChannel.enableVibration(true)
-            notificationChannel.vibrationPattern = longArrayOf(100, 200, 100, 200)
-            notificationChannel.lockscreenVisibility = Notification.VISIBILITY_PRIVATE
+            val notificationChannel =
+                NotificationChannel("학교 급식", "학교 급식 알림", NotificationManager.IMPORTANCE_DEFAULT).apply {
+                    description = "학교 급식 알림"
+                    enableLights(true)
+                    lightColor = Color.GREEN
+                    enableVibration(true)
+                    vibrationPattern = longArrayOf(100, 200, 100, 200)
+                    lockscreenVisibility = Notification.VISIBILITY_PRIVATE
+                }
             notificationManager.createNotificationChannel(notificationChannel)
         }
     }

@@ -32,10 +32,9 @@ class SchoolFoodService {
     }
 
     fun getSchoolData(type: String, index: Int, size: Int, name: String): Observable<SchoolData> {
-        t?.let {
-            return it.getSchoolData(type, index, size, name).toObservable().compose(ioMain())
-        }
-        return Observable.empty()
+        return t?.let {
+            it.getSchoolData(type, index, size, name).toObservable().compose(ioMain())
+        } ?: Observable.empty()
     }
 
     fun getSchoolMealData(type: String,
@@ -47,8 +46,8 @@ class SchoolFoodService {
                           fromDate: String,
                           toDate: String): Observable<SchoolMealData> {
 
-        t?.let {
-            return it.getSchoolMealData(
+        return t?.let {
+            it.getSchoolMealData(
                 type,
                 index,
                 size,
@@ -58,13 +57,13 @@ class SchoolFoodService {
                 fromDate,
                 toDate)
                 .toObservable().compose(ioMain())
-        }
-        return Observable.empty()
+
+        } ?: Observable.empty()
     }
 
     fun <T> ioMain(): ObservableTransformer<T, T> {
-        return ObservableTransformer {
-                upstream -> upstream.subscribeOn(Schedulers.io()).unsubscribeOn(Schedulers.io()).observeOn(Schedulers.computation())
+        return ObservableTransformer { upstream ->
+            upstream.subscribeOn(Schedulers.io()).unsubscribeOn(Schedulers.io()).observeOn(Schedulers.computation())
         }
     }
 }
