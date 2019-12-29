@@ -106,7 +106,6 @@ class MainActivity : AppCompatActivity() {
 
         schoolMealList = ArrayList()
         cardAdapter = HomeRecyclerAdapter(schoolMealList, selectedSubject, deleteSubject)
-
     }
 
     override fun onDestroy() {
@@ -151,16 +150,6 @@ class MainActivity : AppCompatActivity() {
         increaseTouchArea(search, 50)
         increaseTouchArea(option, 50)
         option.isSelected = false
-
-        MobileAds.initialize(this, getString(com.jungbae.schoolfood.R.string.admob_app_id))
-        adView.loadAd(AdRequest.Builder().build())
-        adView.adListener = object: AdListener() {
-            override fun onAdLoaded() { Log.e("@@@","onAdLoaded") }
-            override fun onAdFailedToLoad(errorCode : Int) { Log.e("@@@","onAdFailedToLoad code ${errorCode}") }
-            override fun onAdOpened() { Log.e("@@@","onAdOpened") }
-            override fun onAdLeftApplication() { Log.e("@@@","onAdLeftApplication") }
-            override fun onAdClosed() { Log.e("@@@","onAdClosed") }
-        }
     }
 
     fun bindUI() {
@@ -189,6 +178,9 @@ class MainActivity : AppCompatActivity() {
         val optionDisposable = option.clicks()
             .throttleFirst(200, TimeUnit.MILLISECONDS)
             .observeOn(AndroidSchedulers.mainThread())
+            .doAfterNext {
+                if(option.isSelected) search.visibility = View.INVISIBLE else search.visibility = View.VISIBLE
+            }
             .subscribe {
                 option.isSelected = !option.isSelected
                 val resId: Int = when(option.isSelected) {
@@ -287,30 +279,11 @@ class MainActivity : AppCompatActivity() {
 
     fun requestMealInfo() {
         val data = PreferenceManager.schoolData
-        //val data = SchoolFoodPreference.schoolData
-
-
-//        if(officeCode ==  || schoolCode == "") {
-//            updateUI(null)
-//            return
-//        }
-
         val current = LocalDateTime.now()
         val formatter = DateTimeFormatter.ofPattern("yyyyMMdd")
         val today = current.format(formatter)
         val todayDesc = current.format(DateTimeFormatter.ofPattern("yyyy년 MM월 dd일"))
-/*
-        val list = listOf("Alpha", "Beta", "Gamma", "Delta", "Epsilon")
-        list.toObservable() // extension function for Iterables
-            .flatMap { Observable.just(String.format("%s_", it)) }
-            .subscribeBy(  // named arguments for lambda Subscribers
-                onNext = {
-                    Log.e("@@@","@@@ onNext ${it}")
-                },
-                onError =  { it.printStackTrace() },
-                onComplete = { println("Done!") }
-            )
-*/
+
         Log.d("", "@@@ requestMealInfo")
         schoolMealList.clear()
 
@@ -343,54 +316,6 @@ class MainActivity : AppCompatActivity() {
                     Log.e("@@@@@", "@@@@@ error $it")
                 }
             ))
-
-                    /*
-                .subscribeBy(onNext = {
-                    Log.e("@@@","@@@ onNext ${it}")
-                })
-                */
-
-            /*
-            .subscribeWith(ObservableResponse<SchoolMealData>(
-                onSuccess = {
-                    val list = it.mealServiceDietInfo.get(1).row.map { data ->
-                        SimpleSchoolMealData(data.schoolName, today, data.dishName, data.mealName, data.calInfo)
-                    }
-                    list?.let {
-                        updateUI(it)
-                    }
-
-                    Log.d("@@@@@", "onSuccess ${it.reflectionToString()}")
-                    //Log.d("@@@@@", "onSuccess list ${list}")
-                }, onError = {
-                    Log.d("@@@", "@@@@@ error $it")
-                }
-            ))
-*/
-
-
-//            data.forEach {
-//                NetworkService.getInstance().getSchoolMealData("json", 1, 100, it.officeCode, it.schoolCode, "05b9d532ceeb48dd89238746bd9b0e16", today, today)
-//                    .observeOn(AndroidSchedulers.mainThread())
-//                    .subscribeWith(ObservableResponse<SchoolMealData>(
-//                        onSuccess = {
-//                            val list = it.mealServiceDietInfo.get(1).row.map { data ->
-//                                SimpleSchoolMealData(data.schoolName, today, data.dishName, data.mealName, data.calInfo)
-//                            }
-//                            list?.let {
-//                                updateUI(it)
-//                            }
-//
-//                            Log.d("@@@@@", "onSuccess ${it.reflectionToString()}")
-//                            //Log.d("@@@@@", "onSuccess list ${list}")
-//                        }, onError = {
-//                            Log.d("@@@", "@@@@@ error $it")
-//                        }
-//                    ))
-//
-//            }
-
-
         }
     }
 
@@ -408,7 +333,6 @@ class MainActivity : AppCompatActivity() {
             cardAdapter.notifyDataSetChangedWith(option.isSelected)
         }
     }
-
 
     fun updateUI(list: List<SimpleSchoolMealData>?) {
         AndroidSchedulers.mainThread().scheduleDirect {
@@ -441,6 +365,9 @@ class MainActivity : AppCompatActivity() {
                 if(schoolMealList.removeIf { school ->  school.schoolCode == data.schoolCode && school.officeCode == data.officeCode }) {
                     PreferenceManager.removeSchoolData(data.officeCode, data.schoolCode)
                     reloadRecylerView()
+                }
+                if(schoolMealList.size == 0) {
+                    //option.callOnClick()
                 }
                 //PreferenceManager.addSchoolData(data)
             }

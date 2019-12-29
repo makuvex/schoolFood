@@ -9,6 +9,12 @@ import android.content.Intent
 import android.content.SharedPreferences
 import android.graphics.Color
 import android.os.Build
+import android.provider.Settings
+import android.util.Log
+import com.google.firebase.database.DatabaseReference
+import com.google.firebase.database.FirebaseDatabase
+import com.jungbae.schoolfood.network.FBSchoolData
+import com.jungbae.schoolfood.network.SimpleSchoolData
 import com.jungbae.schoolfood.network.preference.PreferenceManager
 import kotlin.properties.Delegates
 
@@ -18,6 +24,7 @@ class  SchoolFoodApplication : Application() {
         var context: Context by Delegates.notNull()
             private set
         lateinit var preferences: PreferenceManager
+
     }
 
     override fun onCreate() {
@@ -26,7 +33,6 @@ class  SchoolFoodApplication : Application() {
         preferences = PreferenceManager()
         //createNotificationChannel()
     }
-
     fun createNotificationChannel() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager

@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "553393043819",
+    "firebase_url": "https://schoolfood-5cdba.firebaseio.com",
+    "project_id": "schoolfood-5cdba",
+    "storage_bucket": "schoolfood-5cdba.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:553393043819:android:4e3a2535fd60f0cb08b42e",
+        "android_client_info": {
+          "package_name": "com.jungbae.schoolfood"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "553393043819-hm64lfu0jhmidbl90o8bi861ffubvkrk.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC0NxTbt5i65TVX9OcwR3QHsMvXWs-LzNE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "553393043819-hm64lfu0jhmidbl90o8bi861ffubvkrk.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

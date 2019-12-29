@@ -1,5 +1,6 @@
 package com.jungbae.schoolfood.network
 
+import com.google.firebase.database.PropertyName
 import com.google.gson.annotations.SerializedName
 
 enum class SchoolDataIndex(val index: Int) {
@@ -54,10 +55,14 @@ data class Meal(  @SerializedName("ATPT_OFCDC_SC_CODE") val eduOfficecode: Strin
 
 /* UserData */
 
-data class SimpleSchoolData(val name: String,
-                            val address: String,
-                            val schoolCode: String,
-                            val officeCode: String)
+data class SimpleSchoolData(@PropertyName("name") val name: String = "",
+                            @PropertyName("address") val address: String = "",
+                            @PropertyName("schoolCode") val schoolCode: String = "",
+                            @PropertyName("officeCode") val officeCode: String = "")
+
+
+
+data class FBSchoolData(val id: String, val data: SimpleSchoolData)
 
 data class SimpleSchoolMealData(val name: String,
                                 val date: String,

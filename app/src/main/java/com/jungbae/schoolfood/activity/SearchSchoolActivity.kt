@@ -14,6 +14,7 @@ import com.afollestad.materialdialogs.MaterialDialog
 import com.afollestad.materialdialogs.callbacks.onDismiss
 import com.afollestad.materialdialogs.callbacks.onShow
 import com.jakewharton.rxbinding3.view.clicks
+import com.jungbae.schoolfood.FirebaseService
 import com.jungbae.schoolfood.R
 import com.jungbae.schoolfood.SchoolFoodApplication
 import com.jungbae.schoolfood.network.*
@@ -118,6 +119,8 @@ class SearchSchoolActivity : AppCompatActivity() {
                 Toast.makeText(SchoolFoodApplication.context, "positiveButton", Toast.LENGTH_SHORT).show()
 
                 PreferenceManager.addSchoolData(data)
+                FirebaseService.getInstance().createSchoolData(data)
+
                 //SchoolFoodPreference.addSchoolData(data)
 
 //                PreferenceManager.schoolCode = data.schoolCode
