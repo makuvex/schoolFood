@@ -3,6 +3,8 @@ package com.jungbae.schoolfood.activity
 import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
+import android.os.CountDownTimer
+import android.os.Handler
 import android.util.Log
 import android.view.View
 import android.widget.Toast
@@ -15,8 +17,7 @@ import com.google.android.gms.ads.AdRequest
 import com.google.android.gms.ads.InterstitialAd
 import com.google.android.gms.ads.MobileAds
 import com.jakewharton.rxbinding3.view.clicks
-import com.jungbae.schoolfood.R
-import com.jungbae.schoolfood.SchoolFoodApplication
+import com.jungbae.schoolfood.*
 import com.jungbae.schoolfood.network.*
 import com.jungbae.schoolfood.network.preference.PreferenceManager
 import com.jungbae.schoolfood.network.preference.PreferencesConstant
@@ -34,6 +35,7 @@ import kotlinx.android.synthetic.main.activity_main.search
 import kotlinx.android.synthetic.main.activity_search.*
 import kotlinx.android.synthetic.main.activity_search.recycler_view
 import kotlinx.android.synthetic.main.content_main.*
+import kotlinx.android.synthetic.main.progress_bar.*
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import java.util.*
@@ -61,20 +63,31 @@ class MainActivity : AppCompatActivity() {
     private lateinit var deleteSubject: PublishSubject<SimpleSchoolMealData>
     private lateinit var backPressedSubject: BehaviorSubject<Long>
 
-    private lateinit var emitBlockSubject: PublishSubject<Unit>
+    private lateinit var emitBlockSubject: PublishSubject<SimpleSchoolMealData>
 
     private lateinit var interstitialAd: InterstitialAd
-    private var adBlock: () -> Unit = {
+    private var interstitialAdBlock: () -> Unit = {
         if(interstitialAd.isLoaded) {
             interstitialAd.show()
+        } else {
+            simpleSchoolMealData?.let {
+                createTimerFor(100)
+                emitBlockSubject.onNext(it)
+                //emitBlockSubject.onComplete()
+            }
         }
     }
+    var simpleSchoolMealData: SimpleSchoolMealData? = null
+    var countDownTimer: CountDownTimer? = null
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         Log.e("@@@","@@@ onCreate")
         setContentView(R.layout.activity_main)
+
         initAd()
+        FirebaseService.getInstance().logEvent(SchoolFoodPageView.MAIN)
 
         setSupportActionBar(toolbar)
 
@@ -111,6 +124,7 @@ class MainActivity : AppCompatActivity() {
     override fun onDestroy() {
         super.onDestroy()
         disposeBag.clear()
+        stopTimer()
     }
 
     override fun onBackPressed() {
@@ -120,14 +134,22 @@ class MainActivity : AppCompatActivity() {
     fun initAd() {
         MobileAds.initialize(this, getString(com.jungbae.schoolfood.R.string.admob_app_id))
         interstitialAd = InterstitialAd(this)
-        interstitialAd.adUnitId = resources.getString(R.string.full_ad_unit_id_for_test)
+        interstitialAd.adUnitId = BuildConfig.ad_full_banner_id //resources.getString(R.string.full_ad_unit_id_for_test)
         interstitialAd.adListener = object: AdListener() {
+            override fun onAdOpened() {
+                Log.e("@@@","interstitialAd onAdOpened")
+                FirebaseService.getInstance().logEvent(SchoolFoodPageView.FULL_AD)
+            }
             override fun onAdLoaded() { Log.e("@@@","interstitialAd onAdLoaded") }
             override fun onAdFailedToLoad(errorCode : Int) { Log.e("@@@","interstitialAd onAdFailedToLoad code ${errorCode}") }
             override fun onAdClosed() {
                 Log.e("@@@","onAdClosed")
                 interstitialAd.loadAd(AdRequest.Builder().build())
-                emitBlockSubject.onNext(Unit)
+                simpleSchoolMealData?.let {
+                    createTimerFor(100)
+                    emitBlockSubject.onNext(it)
+                    //emitBlockSubject.onComplete()
+                }
             }
         }
         interstitialAd.loadAd(AdRequest.Builder().build())
@@ -136,7 +158,10 @@ class MainActivity : AppCompatActivity() {
         adView.adListener = object: AdListener() {
             override fun onAdLoaded() { Log.e("@@@","banner onAdLoaded") }
             override fun onAdFailedToLoad(errorCode : Int) { Log.e("@@@","banner onAdFailedToLoad code ${errorCode}") }
-            override fun onAdOpened() { Log.e("@@@","onAdOpened") }
+            override fun onAdOpened() {
+                Log.e("@@@","onAdOpened")
+                FirebaseService.getInstance().logEvent(SchoolFoodPageView.BANNER)
+            }
             override fun onAdLeftApplication() { Log.e("@@@","onAdLeftApplication") }
             override fun onAdClosed() { Log.e("@@@","onAdClosed") }
         }
@@ -150,6 +175,8 @@ class MainActivity : AppCompatActivity() {
         increaseTouchArea(search, 50)
         increaseTouchArea(option, 50)
         option.isSelected = false
+
+
     }
 
     fun bindUI() {
@@ -196,29 +223,11 @@ class MainActivity : AppCompatActivity() {
 
         val itemClicksDisposable = selectedSubject
             .throttleFirst(1, TimeUnit.SECONDS)
-            .flatMap { combineLatest(Observable.just(adBlock), emitBlockSubject) }
             .observeOn(AndroidSchedulers.mainThread())
-            .subscribe { result ->
-                Log.e("@@@", "item clicks ${result}")
-
-//                showInterstitialAd {
-//                    Log.e("","")
-//                    val intent = Intent(this, SchoolFoodDetailActivity::class.java)
-//                    intent.putExtra(PreferencesConstant.SCHOOL_CODE, meal.schoolCode)
-//                    intent.putExtra(PreferencesConstant.OFFICE_SC_CODE, meal.officeCode)
-//                    intent.putExtra(PreferencesConstant.SCHOOL_NAME, meal.name)
-//                    startActivity(intent)
-//                }
-
-//                if(interstitialAd.isLoaded) {
-//                    interstitialAd.show()
-//
-//                }
-//                val intent = Intent(this, SchoolFoodDetailActivity::class.java)
-//                intent.putExtra(PreferencesConstant.SCHOOL_CODE, it.schoolCode)
-//                intent.putExtra(PreferencesConstant.OFFICE_SC_CODE, it.officeCode)
-//                intent.putExtra(PreferencesConstant.SCHOOL_NAME, it.name)
-//                startActivity(intent)
+            .subscribe { meal ->
+                Log.e("@@@", "item clicks ${meal}")
+                simpleSchoolMealData = meal
+                interstitialAdBlock()
             }
 
         val itemDeleteDisposable = deleteSubject
@@ -229,13 +238,31 @@ class MainActivity : AppCompatActivity() {
                 showMaterialDialog(it)
             }
 
-        disposeBag.addAll(backDisposable, searchDisposable, optionDisposable, itemClicksDisposable, itemDeleteDisposable)
+        val fullAdCloseDisposable = emitBlockSubject
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe { meal ->
+                stopTimer()
+                val intent = Intent(this, SchoolFoodDetailActivity::class.java)
+                intent.putExtra(PreferencesConstant.SCHOOL_CODE, meal.schoolCode)
+                intent.putExtra(PreferencesConstant.OFFICE_SC_CODE, meal.officeCode)
+                intent.putExtra(PreferencesConstant.SCHOOL_NAME, meal.name)
+
+                simpleSchoolMealData = null
+                startActivity(intent)
+            }
+
+        disposeBag.addAll(
+            backDisposable,
+            searchDisposable,
+            optionDisposable,
+            itemClicksDisposable,
+            itemDeleteDisposable,
+            fullAdCloseDisposable)
     }
 
-    private fun combineLatest(ob: Observable<() -> Unit>, ob2: Observable<Unit>): Observable<Pair<Unit, Unit>> {
-        return Observables.combineLatest(ob, ob2){ execution, adClosed  ->
-            Pair(Unit, Unit)
-        }
+    private fun combineBlock(block: () -> Unit, ob2: Observable<SimpleSchoolMealData>): Observable<SimpleSchoolMealData> {
+        block()
+        return ob2
     }
 
     private fun showInterstitialAd(block: (() -> Unit)?): Unit {
@@ -380,5 +407,30 @@ class MainActivity : AppCompatActivity() {
             }
 
         }
+    }
+
+    fun createTimerFor(millis: Long) {
+        val max = 10000L
+        wrap_progress_bar.visibility = View.VISIBLE
+        progress_bar.progress = 0
+        countDownTimer = object : CountDownTimer(max, millis) {
+            override fun onTick(p0: Long) {
+                val f: Float = (max  - p0)/max.toFloat()
+                val p = (f * 100).toLong()
+                Log.e("@@@","@@@ p0 ${p0}, p ${p}, ${p.toInt()}")
+
+                progress_bar.progress = p.toInt()
+            }
+
+            override fun onFinish() {
+                createTimerFor(100)
+            }
+        }
+        countDownTimer?.start()
+    }
+
+    fun stopTimer() {
+        wrap_progress_bar.visibility = View.GONE
+        countDownTimer?.cancel()
     }
 }

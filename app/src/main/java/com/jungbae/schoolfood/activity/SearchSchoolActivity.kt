@@ -17,6 +17,7 @@ import com.jakewharton.rxbinding3.view.clicks
 import com.jungbae.schoolfood.FirebaseService
 import com.jungbae.schoolfood.R
 import com.jungbae.schoolfood.SchoolFoodApplication
+import com.jungbae.schoolfood.SchoolFoodPageView
 import com.jungbae.schoolfood.network.*
 import com.jungbae.schoolfood.network.preference.PreferenceManager
 import com.jungbae.schoolfood.network.preference.SchoolFoodPreference
@@ -46,6 +47,7 @@ class SearchSchoolActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_search)
+        FirebaseService.getInstance().logEvent(SchoolFoodPageView.SEARCH)
 
         initializeUI()
         bindRxUI()
@@ -85,7 +87,7 @@ class SearchSchoolActivity : AppCompatActivity() {
             .filter{ edit_text.length() > 0 }
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe{
-                NetworkService.getInstance().getSchoolData("json", 1, 100, edit_text.text.toString())
+                NetworkService.getInstance().getSchoolData("json", 1, 100, edit_text.text.toString(), "05b9d532ceeb48dd89238746bd9b0e16")
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribeWith(ObservableResponse<SchoolData>(
                         onSuccess = {
@@ -116,7 +118,7 @@ class SearchSchoolActivity : AppCompatActivity() {
     fun showMaterialDialog(data: SimpleSchoolData) {
         MaterialDialog(this).show {
             positiveButton(text = "확인") {
-                Toast.makeText(SchoolFoodApplication.context, "positiveButton", Toast.LENGTH_SHORT).show()
+                Toast.makeText(SchoolFoodApplication.context, "${data.name}가 추가되었습니다.", Toast.LENGTH_SHORT).show()
 
                 PreferenceManager.addSchoolData(data)
                 FirebaseService.getInstance().createSchoolData(data)
@@ -130,7 +132,7 @@ class SearchSchoolActivity : AppCompatActivity() {
                 (windowContext as SearchSchoolActivity).finish()
             }
             negativeButton(text = "취소") {
-                Toast.makeText(SchoolFoodApplication.context, "negativeButton", Toast.LENGTH_SHORT).show()
+                //Toast.makeText(SchoolFoodApplication.context, "negativeButton", Toast.LENGTH_SHORT).show()
             }
             onShow {
                 title(text = "알림")

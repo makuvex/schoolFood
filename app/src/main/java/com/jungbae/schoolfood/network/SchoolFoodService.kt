@@ -31,9 +31,9 @@ class SchoolFoodService {
         }
     }
 
-    fun getSchoolData(type: String, index: Int, size: Int, name: String): Observable<SchoolData> {
+    fun getSchoolData(type: String, index: Int, size: Int, name: String, key: String): Observable<SchoolData> {
         return t?.let {
-            it.getSchoolData(type, index, size, name).toObservable().compose(ioMain())
+            it.getSchoolData(type, index, size, name, key).toObservable().compose(ioMain())
         } ?: Observable.empty()
     }
 

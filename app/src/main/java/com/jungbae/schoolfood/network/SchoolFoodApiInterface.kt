@@ -10,7 +10,8 @@ interface SchoolFoodApiInterface {
     fun getSchoolData(@Query("Type") type: String,
                       @Query("pIndex") index: Int,
                       @Query("pSize") size: Int,
-                      @Query("SCHUL_NM") name: String): Single<SchoolData>
+                      @Query("SCHUL_NM") name: String,
+                      @Query("KEY") authKey: String): Single<SchoolData>
 
     @GET(ApiSetting.Service.GET_MEAL_SERVIE_INFO)
     fun getSchoolMealData(@Query("Type") type: String,

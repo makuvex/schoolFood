@@ -9,8 +9,10 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.afollestad.materialdialogs.MaterialDialog
 import com.afollestad.materialdialogs.callbacks.onShow
 import com.jakewharton.rxbinding3.view.clicks
+import com.jungbae.schoolfood.FirebaseService
 import com.jungbae.schoolfood.R
 import com.jungbae.schoolfood.SchoolFoodApplication
+import com.jungbae.schoolfood.SchoolFoodPageView
 import com.jungbae.schoolfood.network.*
 import com.jungbae.schoolfood.network.preference.PreferenceManager
 import com.jungbae.schoolfood.network.preference.PreferencesConstant
@@ -49,7 +51,7 @@ class SchoolFoodDetailActivity : AppCompatActivity() {
             schoolCode = it.getStringExtra(PreferencesConstant.SCHOOL_CODE)
             schoolName = it.getStringExtra(PreferencesConstant.SCHOOL_NAME)
         }
-
+        FirebaseService.getInstance().logEvent(SchoolFoodPageView.DETAIL)
         initializeUI()
         bindRxUI()
 

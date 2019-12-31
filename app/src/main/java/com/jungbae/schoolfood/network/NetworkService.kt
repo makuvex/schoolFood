@@ -56,8 +56,8 @@ class NetworkService {
                    @Query("SCHUL_NM") name: String): Single<SchoolData>
 
      */
-    fun getSchoolData(type: String, index: Int, size: Int, schoolName: String): Observable<SchoolData> {
-        return service.getSchoolData(type, index, size, schoolName)
+    fun getSchoolData(type: String, index: Int, size: Int, schoolName: String, key: String): Observable<SchoolData> {
+        return service.getSchoolData(type, index, size, schoolName, key)
     }
 
     fun getSchoolMealData(type: String,
