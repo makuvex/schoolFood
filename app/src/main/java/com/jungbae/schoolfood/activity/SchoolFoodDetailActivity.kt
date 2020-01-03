@@ -113,10 +113,15 @@ class SchoolFoodDetailActivity : AppCompatActivity() {
         val ofCode = officeCode?.let {it} ?: return
 
 
-        val current = LocalDateTime.now()
-        val formatter = DateTimeFormatter.ofPattern("yyyyMMdd")
-        val today = current.format(formatter)
-        val todayDesc = current.format(DateTimeFormatter.ofPattern("yyyy년 MM월 dd일"))
+//        val current = LocalDateTime.now()
+//        val formatter = DateTimeFormatter.ofPattern("yyyyMMdd")
+//        val today = current.format(formatter)
+//        val todayDesc = current.format(DateTimeFormatter.ofPattern("yyyy년 MM월 dd일"))
+
+        val current = System.currentTimeMillis()
+        val date = Date(current)
+        var sdfNow = SimpleDateFormat("yyyyMMdd")
+        val today = sdfNow.format(current)
 
         Log.d("", "@@@ requestMealInfo")
         mealList.clear()

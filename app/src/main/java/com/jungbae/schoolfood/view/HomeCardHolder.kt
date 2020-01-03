@@ -32,8 +32,8 @@ class HomeCardHolder(inflater: LayoutInflater, parent: ViewGroup):
             itemView.meal_info.text = data.meal.replace("<br/>", "\n")
             itemView.more.visibility = View.VISIBLE
         } else {
-            itemView.meal_info.text = "급식 정보 없음"
-            itemView.more.visibility = View.GONE
+            itemView.meal_info.text = "급식 정보 없음\n(휴일, 방학 혹은 학교에서 급식 정보를\n제공하지 않습니다)"
+            //itemView.more.visibility = View.GONE
         }
         itemView.increaseTouchArea(itemView.delete, 50)
         itemView.meal_time.text = data.mealKind

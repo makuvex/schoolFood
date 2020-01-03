@@ -23,6 +23,7 @@ import com.jungbae.schoolfood.network.preference.PreferenceManager
 import com.jungbae.schoolfood.network.preference.PreferencesConstant
 import com.jungbae.schoolfood.view.HomeRecyclerAdapter
 import com.jungbae.schoolfood.view.increaseTouchArea
+import com.jungbae.schoolfood.view.showToast
 import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
@@ -36,6 +37,7 @@ import kotlinx.android.synthetic.main.activity_search.*
 import kotlinx.android.synthetic.main.activity_search.recycler_view
 import kotlinx.android.synthetic.main.content_main.*
 import kotlinx.android.synthetic.main.progress_bar.*
+import java.text.SimpleDateFormat
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import java.util.*
@@ -85,6 +87,8 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         Log.e("@@@","@@@ onCreate")
         setContentView(R.layout.activity_main)
+
+        showToast("2")
 
         initAd()
         FirebaseService.getInstance().logEvent(SchoolFoodPageView.MAIN)
@@ -306,10 +310,18 @@ class MainActivity : AppCompatActivity() {
 
     fun requestMealInfo() {
         val data = PreferenceManager.schoolData
-        val current = LocalDateTime.now()
-        val formatter = DateTimeFormatter.ofPattern("yyyyMMdd")
-        val today = current.format(formatter)
-        val todayDesc = current.format(DateTimeFormatter.ofPattern("yyyy년 MM월 dd일"))
+
+//        val current = LocalDateTime.now()
+//        val formatter = DateTimeFormatter.ofPattern("yyyyMMdd")
+//        val today = current.format(formatter)
+//        val todayDesc = current.format(DateTimeFormatter.ofPattern("yyyy년 MM월 dd일"))
+
+        val current = System.currentTimeMillis()
+        val date = Date(current)
+        var sdfNow = SimpleDateFormat("yyyyMMdd")
+        val today = sdfNow.format(current)
+        sdfNow = SimpleDateFormat("yyyy년 MM월 dd일")
+        val todayDesc = sdfNow.format(current)
 
         Log.d("", "@@@ requestMealInfo")
         schoolMealList.clear()
