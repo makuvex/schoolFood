@@ -1,13 +1,7 @@
 package com.jungbae.schoolfood.network
 
-import android.content.Context
 import android.util.Log
-import java.util.ArrayList
 import io.reactivex.Observable
-import io.reactivex.Scheduler
-import io.reactivex.Single
-import io.reactivex.schedulers.Schedulers
-import okhttp3.Interceptor
 
 /*
 open class NetworkService {

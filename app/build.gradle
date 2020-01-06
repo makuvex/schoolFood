@@ -10,8 +10,8 @@ android {
         applicationId "com.jungbae.schoolfood"
         minSdkVersion 21
         targetSdkVersion 29
-        versionCode 2
-        versionName "1.1"
+        versionCode 3
+        versionName "1.2"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
 
@@ -21,9 +21,6 @@ android {
 
         release {
             storeFile file('schoolfood_release.keystore') // 기준은 App 폴더 기준이다.
-            storePassword "malice77"
-            keyAlias "schoolfood"
-            keyPassword "malice77"
         }
     }
 

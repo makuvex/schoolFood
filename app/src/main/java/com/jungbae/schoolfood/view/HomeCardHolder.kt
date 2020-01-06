@@ -10,7 +10,6 @@ import com.jungbae.schoolfood.R
 import com.jungbae.schoolfood.SchoolFoodApplication
 import com.jungbae.schoolfood.network.SimpleSchoolMealData
 import io.reactivex.subjects.PublishSubject
-import com.jungbae.schoolfood.view.increaseTouchArea
 import kotlinx.android.synthetic.main.home_card_row.view.*
 
 //HomeCardEmptyHolder

@@ -1,9 +1,7 @@
 package com.jungbae.schoolfood.activity
 
-import android.content.Intent
 import android.os.Bundle
 import android.util.Log
-import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.afollestad.materialdialogs.MaterialDialog
@@ -11,10 +9,8 @@ import com.afollestad.materialdialogs.callbacks.onShow
 import com.jakewharton.rxbinding3.view.clicks
 import com.jungbae.schoolfood.FirebaseService
 import com.jungbae.schoolfood.R
-import com.jungbae.schoolfood.SchoolFoodApplication
 import com.jungbae.schoolfood.SchoolFoodPageView
 import com.jungbae.schoolfood.network.*
-import com.jungbae.schoolfood.network.preference.PreferenceManager
 import com.jungbae.schoolfood.network.preference.PreferencesConstant
 import com.jungbae.schoolfood.view.MealDetailRecyclerAdapter
 import com.jungbae.schoolfood.view.increaseTouchArea
@@ -23,8 +19,6 @@ import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.subjects.PublishSubject
 import kotlinx.android.synthetic.main.activity_meal_detail.*
 import java.text.SimpleDateFormat
-import java.time.LocalDateTime
-import java.time.format.DateTimeFormatter
 import java.util.*
 import java.util.concurrent.TimeUnit
 import kotlin.collections.ArrayList

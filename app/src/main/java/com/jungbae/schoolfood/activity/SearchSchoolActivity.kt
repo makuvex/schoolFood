@@ -4,14 +4,11 @@ import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
-import android.view.View
 import android.view.inputmethod.InputMethodManager
 import android.widget.Toast
-import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
 import com.afollestad.materialdialogs.MaterialDialog
-import com.afollestad.materialdialogs.callbacks.onDismiss
 import com.afollestad.materialdialogs.callbacks.onShow
 import com.jakewharton.rxbinding3.view.clicks
 import com.jungbae.schoolfood.FirebaseService
@@ -20,21 +17,13 @@ import com.jungbae.schoolfood.SchoolFoodApplication
 import com.jungbae.schoolfood.SchoolFoodPageView
 import com.jungbae.schoolfood.network.*
 import com.jungbae.schoolfood.network.preference.PreferenceManager
-import com.jungbae.schoolfood.network.preference.SchoolFoodPreference
 import com.jungbae.schoolfood.view.SearchRecyclerAdapter
 import com.jungbae.schoolfood.view.increaseTouchArea
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
-import io.reactivex.subjects.BehaviorSubject
 import io.reactivex.subjects.PublishSubject
-import kotlinx.android.synthetic.main.activity_main.*
-import kotlinx.android.synthetic.main.activity_meal_detail.*
 import kotlinx.android.synthetic.main.activity_search.*
-import kotlinx.android.synthetic.main.activity_search.back
-import kotlinx.android.synthetic.main.activity_search.recycler_view
-import kotlinx.android.synthetic.main.activity_search.search
 import java.util.concurrent.TimeUnit
-import java.util.prefs.Preferences
 
 class SearchSchoolActivity : AppCompatActivity() {
     private val disposeBag = CompositeDisposable()

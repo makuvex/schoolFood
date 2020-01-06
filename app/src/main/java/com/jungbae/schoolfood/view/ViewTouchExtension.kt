@@ -1,6 +1,5 @@
 package com.jungbae.schoolfood.view
 
-import android.app.Activity
 import android.content.Context
 import android.graphics.Rect
 import android.view.TouchDelegate
